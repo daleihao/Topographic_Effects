@@ -1,0 +1,13 @@
+figure;
+subplot(2,3,1)
+scatter(input(:,1), output, 10,'k','filled', 'MarkerFaceAlpha',0.2)
+subplot(2,3,2)
+scatter(input(:,2), output, 10,'k','filled', 'MarkerFaceAlpha',0.2)
+subplot(2,3,3)
+scatter(input(:,3), output, 10,'k','filled', 'MarkerFaceAlpha',0.2)
+subplot(2,3,4)
+scatter(input(:,4), output, 10,'k','filled', 'MarkerFaceAlpha',0.2)
+subplot(2,3,5)
+scatter(input(:,5), output, 10,'k','filled', 'MarkerFaceAlpha',0.2)
+subplot(2,3,6)
+scatter(input(:,6), output, 10,'k','filled', 'MarkerFaceAlpha',0.2)

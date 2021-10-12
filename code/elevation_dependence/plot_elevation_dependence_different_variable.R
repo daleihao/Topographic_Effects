@@ -1,0 +1,76 @@
+library(tidyverse)
+library(R.matlab)
+library(cowplot)
+library(reshape2)
+setwd('C:/Users/haod776/OneDrive - PNNL/Documents/work/E3SM/writting/topographic effects/plot_figures/code/Elevation_dependence/')
+
+# import data
+scale = 'r0125';
+variables_name = c('net_solar_radiation','snow_cover', 'snow_depth', 'temperature', 'sensible_heat_flux','latent_heat_flux');
+codes = c('(a) Net solar radiation','(b) Snow cover fraction', '(c) Snow Depth', '(d) Surface temperature', '(e) Sensible heat flux','(f) Latent heat flux');
+for (i in 1:6)
+{
+  code = codes[i];
+  name = variables_name[i];
+  
+  all_datas <- readMat(paste0(name, '_', scale, '.mat'));
+  
+  all_data <- as.data.frame(all_datas['group.data'])  
+  colnames(all_data) <- c('Elevation','Winter', 'Spring', 'Summer', 'Autumn')
+  all_data <- all_data %>% 
+    select(Elevation, Winter) %>% 
+    filter(Elevation>1)
+  all_data[['Elevation']] <- factor(all_data[['Elevation']])
+  all_data <- all_data %>% filter(Winter>-100)
+  plot_scale_difference <- ggplot(all_data, aes(x =Elevation , y = Winter, fill = Elevation)) +  ylab('(TOP-PP)/PP') + xlab('Elevation (km)')  +ggtitle(code) +
+    stat_boxplot(geom ='errorbar', width = 0.6, size = 0.5, show.legend = FALSE) +
+    geom_boxplot(size = 0.3, show.legend = F, width = 0.6, outlier.shape = 1,outlier.size = 0.1, outlier.alpha = 0) + 
+    #geom_violin(trim = FALSE) +
+    stat_summary(fun=mean, geom="point", size=1, color="red", show.legend = FALSE) + 
+    #geom_boxplot(width=0.1) + 
+    theme_classic() + 
+    theme(plot.title = element_text(face="bold", color="black",size=11, angle=0),
+          #axis.title.x=element_blank(),
+          axis.text.x = element_text(color="black",size=10, angle=0),
+          axis.text.y = element_text( color="black", size=10, angle=0),
+          axis.title.y = element_text(face="bold", color="black",size=10),
+          axis.line = element_line(size = 0.5)) +
+    scale_fill_brewer(palette="YlGn") +
+    scale_x_discrete(labels = c('1.5-2.5','2.5-3.5','3.5-4.5','>4.5')) + 
+    ylim(c(-0.2,0.2))+
+    geom_hline(yintercept=0, linetype = "dashed", color = 'black')
+  if(i == 1)
+  {
+    plot_1 <- plot_scale_difference + 
+      ylim(c(-0.1,0.1))  +
+      theme(axis.title.x=element_blank())
+  }
+  else if(i==2)
+  { plot_2 <- plot_scale_difference + 
+    theme(axis.title.x=element_blank())+
+    ylim(c(-0.15,0.15))}
+  else if(i==3)
+  { plot_3 <- plot_scale_difference + 
+    theme(axis.title.x=element_blank()) +
+            ylim(c(-0.15,0.15))}
+  else if(i==4)
+  { plot_4 <- plot_scale_difference + 
+    ylim(c(-0.5,0.5)) + 
+    ylab('TOP-PP (K)')}
+  else if(i==5)
+  { plot_5 <- plot_scale_difference 
+  }
+  else
+  { plot_6 <- plot_scale_difference + 
+    ylim(c(-0.07,0.07)) 
+  }
+}
+
+
+plot_figure <- plot_grid(   plot_1,plot_2,plot_3,
+                            plot_4,plot_5,plot_6,
+                            #labels = c("a", "b","c","d"),
+                            #label_size = 20,
+                            nrow = 2, ncol = 3, align = 'v')
+
+ggsave(paste0('revised_figure_7_BOXPLOT_TOP_PP_',scale,".tiff"), plot = plot_figure, width = 28, height = 14, units = "cm", dpi = 300, limitsize = FALSE, compression = "lzw")

@@ -1,2 +1,2 @@
 # Topographic_Effects
-code for topographic adjustment in E3SM
+codes and data to reproduce all results and plot all figures
